@@ -38,7 +38,8 @@ fn run(config: &mut Config) -> anyhow::Result<()> {
             .or_default()
             .insert(dep);
     }
-    duplicates.retain(|_, v| v.len() > 1);
+    let mut duplicates = duplicates.iter().filter(|(_, v)| v.len() > 1).collect::<Vec<_>>();
+    duplicates.sort_by_key(|d| d.0);
     if duplicates.is_empty() {
         println!("No duplicate dependencies, yay!");
     } else {
@@ -59,7 +60,7 @@ fn run(config: &mut Config) -> anyhow::Result<()> {
         }
         writer.flush()?;
         print!("{}", String::from_utf8(writer.into_inner()?)?);
-        for deps in duplicates.values() {
+        for (_, deps) in &duplicates {
             println!();
             for dep in deps.iter().rev() {
                 let path = lockfile.path_to_top(dep);
