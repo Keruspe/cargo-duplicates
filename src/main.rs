@@ -3,7 +3,10 @@ use cargo::{
     ops::load_pkg_lockfile,
     util::{command_prelude::*, important_paths},
 };
-use std::{collections::{HashMap, HashSet}, io::Write};
+use std::{
+    collections::{BTreeSet, HashMap},
+    io::Write,
+};
 use tabwriter::TabWriter;
 
 fn main() {
@@ -28,11 +31,11 @@ fn run(config: &mut Config) -> anyhow::Result<()> {
     } else {
         anyhow::bail!("Cargo.lock is required");
     };
-    let mut deps: HashMap<String, HashSet<String>> = HashMap::new();
+    let mut deps: HashMap<String, BTreeSet<_>> = HashMap::new();
     for dep in lockfile.iter() {
         deps.entry(dep.name().to_string())
             .or_default()
-            .insert(dep.version().to_string());
+            .insert(dep.version());
     }
     deps.retain(|_, v| v.len() > 1);
     if deps.is_empty() {
@@ -42,7 +45,8 @@ fn run(config: &mut Config) -> anyhow::Result<()> {
         writeln!(&mut writer, "Package\tVersions")?;
         writeln!(&mut writer, "-------\t--------")?;
         for (name, versions) in deps {
-            writeln!(&mut writer,
+            writeln!(
+                &mut writer,
                 "{}\t{}",
                 name,
                 versions
@@ -50,7 +54,7 @@ fn run(config: &mut Config) -> anyhow::Result<()> {
                     .fold("".to_string(), |acc, version| if acc == "" {
                         version.to_string()
                     } else {
-                        format!("{}\t{}", acc, version)
+                        format!("{}\t{}", version, acc)
                     })
             )?;
         }
