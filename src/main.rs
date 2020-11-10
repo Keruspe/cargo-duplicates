@@ -31,30 +31,30 @@ fn run(config: &mut Config) -> anyhow::Result<()> {
     } else {
         anyhow::bail!("Cargo.lock is required");
     };
-    let mut deps: HashMap<String, BTreeSet<_>> = HashMap::new();
+    let mut duplicates: HashMap<String, BTreeSet<_>> = HashMap::new();
     for dep in lockfile.iter() {
-        deps.entry(dep.name().to_string())
+        duplicates.entry(dep.name().to_string())
             .or_default()
-            .insert(dep.version());
+            .insert(dep);
     }
-    deps.retain(|_, v| v.len() > 1);
-    if deps.is_empty() {
+    duplicates.retain(|_, v| v.len() > 1);
+    if duplicates.is_empty() {
         println!("No duplicate dependencies, yay!");
     } else {
         let mut writer = TabWriter::new(Vec::new());
         writeln!(&mut writer, "Package\tVersions")?;
         writeln!(&mut writer, "-------\t--------")?;
-        for (name, versions) in deps {
+        for (name, deps) in duplicates {
             writeln!(
                 &mut writer,
                 "{}\t{}",
                 name,
-                versions
+                deps
                     .iter()
-                    .fold("".to_string(), |acc, version| if acc == "" {
-                        version.to_string()
+                    .fold("".to_string(), |acc, dep| if acc == "" {
+                        dep.version().to_string()
                     } else {
-                        format!("{}\t{}", version, acc)
+                        format!("{}\t{}", dep.version(), acc)
                     })
             )?;
         }
