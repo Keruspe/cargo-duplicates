@@ -68,7 +68,17 @@ fn run(config: &mut Config) -> anyhow::Result<()> {
             for dep in deps.iter().rev() {
                 println!("{} {}:", dep.name(), dep.version());
                 for c in find_dependents_of(&lockfile, *dep) {
-                    println!("- Beause of {} => {} {}", c, dep.name(), dep.version());
+                    println!(
+                        "{} {} {}",
+                        c.iter().fold("- Because of".to_string(), |acc, dep| format!(
+                            "{} {} {} =>",
+                            acc,
+                            dep.name(),
+                            dep.version()
+                        )),
+                        dep.name(),
+                        dep.version()
+                    );
                 }
             }
         }
@@ -76,16 +86,20 @@ fn run(config: &mut Config) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn find_dependents_of(lockfile: &Resolve, dep: PackageId) -> Vec<String> {
+fn find_dependents_of(lockfile: &Resolve, dep: PackageId) -> Vec<Vec<PackageId>> {
     let mut res = Vec::new();
     for d in lockfile.iter() {
         if lockfile.deps(d).into_iter().filter(|d| d.0 == dep).count() != 0 {
             let mut r = find_dependents_of(lockfile, d)
                 .iter()
-                .map(|dd| format!("{} => {} {}", dd, d.name(), d.version()))
+                .map(|dd| {
+                    let mut dd = dd.clone();
+                    dd.push(d);
+                    dd
+                })
                 .collect::<Vec<_>>();
             if r.is_empty() {
-                res.push(format!("{} {}", d.name(), d.version()));
+                res.push(vec![d]);
             } else {
                 res.append(&mut r);
             }
