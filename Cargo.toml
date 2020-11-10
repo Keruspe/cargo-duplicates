@@ -1,0 +1,9 @@
+[package]
+name = "cargo-duplicates"
+version = "0.1.0"
+authors = ["Marc-Antoine Perennou <Marc-Antoine@Perennou.com>"]
+edition = "2018"
+
+[dependencies]
+anyhow = "^1.0"
+cargo = "^0.48"
