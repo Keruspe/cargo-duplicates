@@ -1,5 +1,5 @@
 use cargo::{
-    core::{shell::Shell, Workspace},
+    core::{shell::Shell, PackageId, Resolve, Workspace},
     ops::load_pkg_lockfile,
     util::{command_prelude::*, important_paths},
 };
@@ -66,22 +66,30 @@ fn run(config: &mut Config) -> anyhow::Result<()> {
         for (_, deps) in &duplicates {
             println!();
             for dep in deps.iter().rev() {
-                let path = lockfile.path_to_top(dep);
-                let dupe = path.iter().next().unwrap();
-                println!("{} {}:", dupe.name(), dupe.version());
-                println!(
-                    "- Because of {}",
-                    path.iter()
-                        .rev()
-                        .skip(1)
-                        .fold("".to_string(), |acc, dep| if acc == "" {
-                            format!("{} {}", dep.name(), dep.version())
-                        } else {
-                            format!("{} => {} {}", acc, dep.name(), dep.version())
-                        })
-                );
+                println!("{} {}:", dep.name(), dep.version());
+                for c in find_dependents_of(&lockfile, *dep) {
+                    println!("- Beause of {} => {} {}", c, dep.name(), dep.version());
+                }
             }
         }
     }
     Ok(())
+}
+
+fn find_dependents_of(lockfile: &Resolve, dep: PackageId) -> Vec<String> {
+    let mut res = Vec::new();
+    for d in lockfile.iter() {
+        if lockfile.deps(d).into_iter().filter(|d| d.0 == dep).count() != 0 {
+            let mut r = find_dependents_of(lockfile, d)
+                .iter()
+                .map(|dd| format!("{} => {} {}", dd, d.name(), d.version()))
+                .collect::<Vec<_>>();
+            if r.is_empty() {
+                res.push(format!("{} {}", d.name(), d.version()));
+            } else {
+                res.append(&mut r);
+            }
+        }
+    }
+    res
 }
