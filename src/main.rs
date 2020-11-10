@@ -38,7 +38,10 @@ fn run(config: &mut Config) -> anyhow::Result<()> {
             .or_default()
             .insert(dep);
     }
-    let mut duplicates = duplicates.iter().filter(|(_, v)| v.len() > 1).collect::<Vec<_>>();
+    let mut duplicates = duplicates
+        .iter()
+        .filter(|(_, v)| v.len() > 1)
+        .collect::<Vec<_>>();
     duplicates.sort_by_key(|d| d.0);
     if duplicates.is_empty() {
         println!("No duplicate dependencies, yay!");
@@ -68,11 +71,14 @@ fn run(config: &mut Config) -> anyhow::Result<()> {
                 println!("{} {}:", dupe.name(), dupe.version());
                 println!(
                     "- Because of {}",
-                    path.iter().fold("".to_string(), |acc, dep| if acc == "" {
-                        format!("{} {}", dep.name(), dep.version())
-                    } else {
-                        format!("{} {} => {}", dep.name(), dep.version(), acc)
-                    })
+                    path.iter()
+                        .rev()
+                        .skip(1)
+                        .fold("".to_string(), |acc, dep| if acc == "" {
+                            format!("{} {}", dep.name(), dep.version())
+                        } else {
+                            format!("{} => {} {}", acc, dep.name(), dep.version())
+                        })
                 );
             }
         }
