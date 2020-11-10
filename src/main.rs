@@ -33,7 +33,8 @@ fn run(config: &mut Config) -> anyhow::Result<()> {
     };
     let mut duplicates: HashMap<String, BTreeSet<_>> = HashMap::new();
     for dep in lockfile.iter() {
-        duplicates.entry(dep.name().to_string())
+        duplicates
+            .entry(dep.name().to_string())
             .or_default()
             .insert(dep);
     }
@@ -44,22 +45,36 @@ fn run(config: &mut Config) -> anyhow::Result<()> {
         let mut writer = TabWriter::new(Vec::new());
         writeln!(&mut writer, "Package\tVersions")?;
         writeln!(&mut writer, "-------\t--------")?;
-        for (name, deps) in duplicates {
+        for (name, deps) in &duplicates {
             writeln!(
                 &mut writer,
                 "{}\t{}",
                 name,
-                deps
-                    .iter()
-                    .fold("".to_string(), |acc, dep| if acc == "" {
-                        dep.version().to_string()
-                    } else {
-                        format!("{}\t{}", dep.version(), acc)
-                    })
+                deps.iter().fold("".to_string(), |acc, dep| if acc == "" {
+                    dep.version().to_string()
+                } else {
+                    format!("{}\t{}", dep.version(), acc)
+                })
             )?;
         }
         writer.flush()?;
         print!("{}", String::from_utf8(writer.into_inner()?)?);
+        for deps in duplicates.values() {
+            println!();
+            for dep in deps.iter().rev() {
+                let path = lockfile.path_to_top(dep);
+                let dupe = path.iter().next().unwrap();
+                println!("{} {}:", dupe.name(), dupe.version());
+                println!(
+                    "- Because of {}",
+                    path.iter().fold("".to_string(), |acc, dep| if acc == "" {
+                        format!("{} {}", dep.name(), dep.version())
+                    } else {
+                        format!("{} {} => {}", dep.name(), dep.version(), acc)
+                    })
+                );
+            }
+        }
     }
     Ok(())
 }
