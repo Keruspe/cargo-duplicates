@@ -7,3 +7,4 @@ edition = "2018"
 [dependencies]
 anyhow = "^1.0"
 cargo = "^0.48"
+tabwriter = "^1.2"

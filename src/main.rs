@@ -3,7 +3,8 @@ use cargo::{
     ops::load_pkg_lockfile,
     util::{command_prelude::*, important_paths},
 };
-use std::collections::{HashMap, HashSet};
+use std::{collections::{HashMap, HashSet}, io::Write};
+use tabwriter::TabWriter;
 
 fn main() {
     let mut config = match Config::default() {
@@ -15,17 +16,17 @@ fn main() {
     };
 
     if let Err(e) = run(&mut config) {
-        cargo::exit_with_error(e, &mut *config.shell())
+        cargo::exit_with_error(e.into(), &mut *config.shell())
     }
 }
 
-fn run(config: &mut Config) -> CliResult {
+fn run(config: &mut Config) -> anyhow::Result<()> {
     let root = important_paths::find_root_manifest_for_wd(config.cwd())?;
     let ws = Workspace::new(&root, config)?;
     let lockfile = if let Some(lockfile) = load_pkg_lockfile(&ws)? {
         lockfile
     } else {
-        return Err(anyhow::Error::msg("Cargo.lock is required").into());
+        anyhow::bail!("Cargo.lock is required");
     };
     let mut deps: HashMap<String, HashSet<String>> = HashMap::new();
     for dep in lockfile.iter() {
@@ -33,18 +34,28 @@ fn run(config: &mut Config) -> CliResult {
             .or_default()
             .insert(dep.version().to_string());
     }
-    for (name, versions) in deps.iter().filter(|(_, v)| v.len() > 1) {
-        println!(
-            "Found duplicate: {}. Required versions: [{}].",
-            name,
-            versions
-                .iter()
-                .fold("".to_string(), |acc, version| if acc == "" {
-                    version.to_string()
-                } else {
-                    format!("{}, {}", acc, version)
-                })
-        );
+    deps.retain(|_, v| v.len() > 1);
+    if deps.is_empty() {
+        println!("No duplicate dependencies, yay!");
+    } else {
+        let mut writer = TabWriter::new(Vec::new());
+        writeln!(&mut writer, "Package\tVersions")?;
+        writeln!(&mut writer, "-------\t--------")?;
+        for (name, versions) in deps {
+            writeln!(&mut writer,
+                "{}\t{}",
+                name,
+                versions
+                    .iter()
+                    .fold("".to_string(), |acc, version| if acc == "" {
+                        version.to_string()
+                    } else {
+                        format!("{}\t{}", acc, version)
+                    })
+            )?;
+        }
+        writer.flush()?;
+        print!("{}", String::from_utf8(writer.into_inner()?)?);
     }
     Ok(())
 }
