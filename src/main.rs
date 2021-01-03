@@ -70,12 +70,13 @@ fn run(config: &mut Config) -> anyhow::Result<()> {
                 for c in find_dependents_of(&lockfile, *dep) {
                     println!(
                         "{} {} {}",
-                        c.iter().fold("- Because of".to_string(), |acc, dep| format!(
-                            "{} {} {} =>",
-                            acc,
-                            dep.name(),
-                            dep.version()
-                        )),
+                        c.iter()
+                            .fold("- Because of".to_string(), |acc, dep| format!(
+                                "{} {} {} =>",
+                                acc,
+                                dep.name(),
+                                dep.version()
+                            )),
                         dep.name(),
                         dep.version()
                     );
