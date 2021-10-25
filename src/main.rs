@@ -54,7 +54,7 @@ fn run(config: &mut Config) -> anyhow::Result<()> {
                 &mut writer,
                 "{}\t{}",
                 name,
-                deps.iter().fold("".to_string(), |acc, dep| if acc == "" {
+                deps.iter().fold("".to_string(), |acc, dep| if acc.is_empty() {
                     dep.version().to_string()
                 } else {
                     format!("{}\t{}", dep.version(), acc)
