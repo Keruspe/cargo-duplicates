@@ -1,6 +1,6 @@
 [package]
 name = "cargo-duplicates"
-version = "0.5.0"
+version = "0.5.1"
 authors = ["Marc-Antoine Perennou <Marc-Antoine@Perennou.com>"]
 categories = ["development-tools", "development-tools::cargo-plugins"]
 edition = "2021"
