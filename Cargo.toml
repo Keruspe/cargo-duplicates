@@ -9,7 +9,7 @@ license = "MIT"
 readme = "README.md"
 repository = "https://github.com/Keruspe/cargo-duplicates.git"
 description = "Cargo subcommand for displaying when different versions of a same dependency are pulled in"
-rust-version = "1.56.0"
+rust-version = "1.58.0"
 
 [dependencies]
 anyhow = "^1.0"
