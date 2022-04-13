@@ -13,7 +13,7 @@ rust-version = "1.56.0"
 
 [dependencies]
 anyhow = "^1.0"
-cargo = "^0.60"
+cargo = "^0.61"
 tabwriter = "^1.2"
 
 [profile.release]
