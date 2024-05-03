@@ -10,22 +10,22 @@ use std::{
 use tabwriter::TabWriter;
 
 fn main() {
-    let mut config = match Config::default() {
-        Ok(cfg) => cfg,
+    let mut gctx = match GlobalContext::default() {
+        Ok(gctx) => gctx,
         Err(e) => {
             let mut shell = Shell::new();
             cargo::exit_with_error(e.into(), &mut shell)
         }
     };
 
-    if let Err(e) = run(&mut config) {
-        cargo::exit_with_error(e.into(), &mut *config.shell())
+    if let Err(e) = run(&mut gctx) {
+        cargo::exit_with_error(e.into(), &mut *gctx.shell())
     }
 }
 
-fn run(config: &mut Config) -> anyhow::Result<()> {
-    let root = important_paths::find_root_manifest_for_wd(config.cwd())?;
-    let ws = Workspace::new(&root, config)?;
+fn run(gctx: &mut GlobalContext) -> anyhow::Result<()> {
+    let root = important_paths::find_root_manifest_for_wd(gctx.cwd())?;
+    let ws = Workspace::new(&root, gctx)?;
     let lockfile = if let Some(lockfile) = load_pkg_lockfile(&ws)? {
         lockfile
     } else {
