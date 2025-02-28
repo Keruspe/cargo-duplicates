@@ -13,7 +13,7 @@ use std::{
 use tabwriter::TabWriter;
 
 fn main() {
-     let mut gctx = GlobalContext::default().unwrap_or_else(|e| {
+    let mut gctx = GlobalContext::default().unwrap_or_else(|e| {
         let mut eval = Shell::new();
         cargo::exit_with_error(e.into(), &mut eval)
     });
@@ -29,6 +29,7 @@ fn cli() -> Command {
         .arg_features()
         .arg_manifest_path()
         .arg_lockfile_path()
+        .arg(flag("short", "Don't print the full detail of dependency chains"))
 }
 
 fn run(gctx: &mut GlobalContext) -> anyhow::Result<()> {
@@ -83,6 +84,19 @@ fn run(gctx: &mut GlobalContext) -> anyhow::Result<()> {
                 .map(|dep| format!("{}@{}", dep.name(), dep.version()))
         })
         .collect::<Vec<String>>();
+
+    if args.flag("short") {
+        println!("For more details, run:");
+        println!(
+            "{}",
+            duplicate_packages.iter().fold(
+                "cargo tree --no-dedupe --invert".to_string(),
+                |acc, package| format!("{acc} --package {package}")
+            )
+        );
+        return Ok(());
+    }
+
     let mut edge_kinds = HashSet::new();
     edge_kinds.insert(tree::EdgeKind::Dep(DepKind::Normal));
     edge_kinds.insert(tree::EdgeKind::Dep(DepKind::Build));

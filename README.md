@@ -1,6 +1,7 @@
 # cargo-duplicates
 
 A cargo subcommand for displaying when different versions of a same dependency are pulled in.
+You can shorten the output by passing `--short` as argument.
 
 ## Demo
 
