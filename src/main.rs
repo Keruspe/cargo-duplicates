@@ -24,12 +24,14 @@ fn main() {
 }
 
 fn cli() -> Command {
-    subcommand("duplicates")
-        .about("A cargo subcommand for displaying when different versions of a same dependency are pulled in")
-        .arg_features()
-        .arg_manifest_path()
-        .arg_lockfile_path()
-        .arg(flag("short", "Don't print the full detail of dependency chains"))
+    Command::new("cargo").subcommand(
+        subcommand("duplicates")
+            .about("A cargo subcommand for displaying when different versions of a same dependency are pulled in")
+            .arg_features()
+            .arg_manifest_path()
+            .arg_lockfile_path()
+            .arg(flag("short", "Don't print the full detail of dependency chains"))
+    )
 }
 
 fn run(gctx: &mut GlobalContext) -> anyhow::Result<()> {
