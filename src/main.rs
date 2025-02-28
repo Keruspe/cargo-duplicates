@@ -24,14 +24,15 @@ fn main() {
 }
 
 fn cli() -> Command {
-    Command::new("cargo").subcommand(
-        subcommand("duplicates")
-            .about("A cargo subcommand for displaying when different versions of a same dependency are pulled in")
-            .arg_features()
-            .arg_manifest_path()
-            .arg_lockfile_path()
-            .arg(flag("short", "Don't print the full detail of dependency chains"))
-    )
+    Command::new("cargo")
+        .arg_features()
+        .arg_manifest_path()
+        .arg_lockfile_path()
+        .subcommand(
+            subcommand("duplicates")
+                .about("A cargo subcommand for displaying when different versions of a same dependency are pulled in")
+                .arg(flag("short", "Don't print the full detail of dependency chains"))
+        )
 }
 
 fn run(gctx: &mut GlobalContext) -> anyhow::Result<()> {
@@ -87,7 +88,7 @@ fn run(gctx: &mut GlobalContext) -> anyhow::Result<()> {
         })
         .collect::<Vec<String>>();
 
-    if args.flag("short") {
+    if args.subcommand().map_or(false, |sub| sub.1.flag("short")) {
         println!("For more details, run:");
         println!(
             "{}",
