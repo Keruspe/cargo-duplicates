@@ -3,17 +3,17 @@ name = "cargo-duplicates"
 version = "0.7.0"
 authors = ["Marc-Antoine Perennou <Marc-Antoine@Perennou.com>"]
 categories = ["development-tools", "development-tools::cargo-plugins"]
-edition = "2021"
+edition = "2024"
 keywords = ["cargo", "subcommand", "dependencies", "cargo-subcommand", "deps"]
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/Keruspe/cargo-duplicates.git"
 description = "Cargo subcommand for displaying when different versions of a same dependency are pulled in"
-rust-version = "1.58.0"
+rust-version = "1.85.0"
 
 [dependencies]
 anyhow = "^1.0"
-cargo = "^0.81"
+cargo = "^0.86"
 tabwriter = "^1.2"
 
 [profile.release]

@@ -1,5 +1,5 @@
 use cargo::{
-    core::{shell::Shell, PackageId, Resolve, Workspace},
+    core::{PackageId, Resolve, Workspace, shell::Shell},
     ops::load_pkg_lockfile,
     util::{command_prelude::*, important_paths},
 };
