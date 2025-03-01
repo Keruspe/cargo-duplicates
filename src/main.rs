@@ -1,5 +1,5 @@
 use cargo::{
-    core::{dependency::DepKind, shell::Shell},
+    core::{dependency::DepKind, resolver::CliFeatures, shell::Shell},
     ops::{
         Packages, load_pkg_lockfile,
         tree::{self, TreeOptions},
@@ -107,7 +107,11 @@ fn run(gctx: &mut GlobalContext) -> anyhow::Result<()> {
     tree::build_and_print(
         &ws,
         &TreeOptions {
-            cli_features: args.cli_features()?,
+            cli_features: CliFeatures {
+                all_features: true,
+                uses_default_features: true,
+                features: Default::default(),
+            },
             packages: Packages::Packages(duplicate_packages.clone()),
             target: tree::Target::All,
             edge_kinds,
