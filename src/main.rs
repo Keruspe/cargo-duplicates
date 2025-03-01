@@ -24,19 +24,18 @@ fn main() {
 }
 
 fn cli() -> Command {
-    Command::new("cargo")
-        .arg_features()
-        .arg_manifest_path()
-        .arg_lockfile_path()
-        .subcommand(
-            subcommand("duplicates")
-                .about("A cargo subcommand for displaying when different versions of a same dependency are pulled in")
-                .arg(flag("short", "Don't print the full detail of dependency chains"))
-        )
+    Command::new("cargo").subcommand(
+        subcommand("duplicates")
+            .about("A cargo subcommand for displaying when different versions of a same dependency are pulled in")
+            .arg_manifest_path()
+            .arg_lockfile_path()
+            .arg(flag("short", "Don't print the full detail of dependency chains"))
+    )
+    .subcommand_required(true)
 }
 
 fn run(gctx: &mut GlobalContext) -> anyhow::Result<()> {
-    let args = cli().try_get_matches()?;
+    let args = cli().try_get_matches()?.remove_subcommand().unwrap().1;
     let ws = args.workspace(gctx)?;
     let lockfile = if let Some(lockfile) = load_pkg_lockfile(&ws)? {
         lockfile
@@ -88,7 +87,7 @@ fn run(gctx: &mut GlobalContext) -> anyhow::Result<()> {
         })
         .collect::<Vec<String>>();
 
-    if args.subcommand().map_or(false, |sub| sub.1.flag("short")) {
+    if args.flag("short") {
         println!("For more details, run:");
         println!(
             "{}",
