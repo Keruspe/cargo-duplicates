@@ -1,4 +1,4 @@
-name: Security audit
+name: Semver compliance check
 
 on:
   push:
@@ -7,12 +7,10 @@ on:
     tags:
       - "**"
   pull_request:
-  schedule:
-    - cron: "0 12 * * 1"
 
 jobs:
-  security_audit:
+  semver_check:
     runs-on: ubuntu-latest
     steps:
       - uses: amqp-rs/actions/checkout@main
-      - uses: amqp-rs/actions/security@main
+      - uses: amqp-rs/actions/semver@main
