@@ -27,6 +27,7 @@ fn cli() -> Command {
     Command::new("cargo").subcommand(
         subcommand("duplicates")
             .about("A cargo subcommand for displaying when different versions of a same dependency are pulled in")
+            .version(env!("CARGO_PKG_VERSION"))
             .arg_manifest_path()
             .arg(flag("short", "Don't print the full detail of dependency chains"))
     )
