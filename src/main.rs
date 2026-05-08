@@ -106,11 +106,7 @@ fn run(gctx: &mut GlobalContext) -> anyhow::Result<()> {
     tree::build_and_print(
         &ws,
         &TreeOptions {
-            cli_features: CliFeatures {
-                all_features: true,
-                uses_default_features: true,
-                features: Default::default(),
-            },
+            cli_features: CliFeatures::new_all(false),
             packages: Packages::Packages(duplicate_packages.clone()),
             target: tree::Target::All,
             edge_kinds,
