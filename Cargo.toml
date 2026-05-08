@@ -9,11 +9,11 @@ license = "MIT"
 readme = "README.md"
 repository = "https://github.com/Keruspe/cargo-duplicates.git"
 description = "Cargo subcommand for displaying when different versions of a same dependency are pulled in"
-rust-version = "1.85.0"
+rust-version = "1.93.0"
 
 [dependencies]
 anyhow = "^1.0"
-cargo = "^0.86"
+cargo = "^0.96"
 tabwriter = "^1.2"
 
 [profile.release]

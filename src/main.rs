@@ -28,7 +28,6 @@ fn cli() -> Command {
         subcommand("duplicates")
             .about("A cargo subcommand for displaying when different versions of a same dependency are pulled in")
             .arg_manifest_path()
-            .arg_lockfile_path()
             .arg(flag("short", "Don't print the full detail of dependency chains"))
     )
     .subcommand_required(true)
@@ -124,6 +123,7 @@ fn run(gctx: &mut GlobalContext) -> anyhow::Result<()> {
             graph_features: false,
             display_depth: tree::DisplayDepth::MaxDisplayDepth(u32::MAX),
             no_proc_macro: false,
+            public: false,
         },
     )
 }
